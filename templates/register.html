@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Регистрация{% endblock %}
+
+{% block content %}
+<div class="card">
+  <h1>Регистрация</h1>
+
+  <form method="post">
+    <div class="grid2">
+      <div>
+        <label>Фамилия</label>
+        <input type="text" name="surname" required>
+      </div>
+      <div>
+        <label>Имя</label>
+        <input type="text" name="name" required>
+      </div>
+
+      <div>
+        <label>Отчество</label>
+        <input type="text" name="patronymic">
+      </div>
+      <div>
+        <label>Должность</label>
+        <input type="text" name="position">
+      </div>
+
+      <div>
+        <label>ИНН организации</label>
+        <input type="text" name="inn" placeholder="10 или 12 цифр" required>
+      </div>
+      <div></div>
+
+      <div>
+        <label>Логин</label>
+        <input type="text" name="login" required>
+      </div>
+      <div>
+        <label>Пароль</label>
+        <input type="password" name="password" required>
+      </div>
+    </div>
+
+    <button type="submit">Создать аккаунт</button>
+  </form>
+
+  <div class="hint">
+    Уже есть аккаунт? <a href="{{ url_for('login') }}">Вход</a>
+  </div>
+</div>
+{% endblock %}

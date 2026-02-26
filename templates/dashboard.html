@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Панель{% endblock %}
+
+{% block content %}
+<div class="card">
+  <h1>Панель</h1>
+
+  <div class="section">
+    <h2>Пользователь</h2>
+    <div class="kv">
+      <div class="k">Логин</div><div class="v">{{ user.login }}</div>
+      <div class="k">ФИО</div><div class="v">{{ user.name }} {{ user.firstname }} {{ user.otchestvo or "" }}</div>
+      <div class="k">Должность</div><div class="v">{{ user.position or "-" }}</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Организация</h2>
+    <div class="kv">
+      <div class="k">ИНН</div><div class="v">{{ org.inn }}</div>
+      <div class="k">Название</div>
+      <div class="v">
+        {% if org.short_name or org.full_name %}
+          {{ org.short_name or org.full_name }}
+        {% else %}
+          не загружено (в базе только ИНН)
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="hint">
+      Можно проверить API:
+      <code>/v1/orgs/find/by_inn?inn={{ org.inn }}&view=full</code>
+    </div>
+  </div>
+</div>
+{% endblock %}

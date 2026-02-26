@@ -1,37 +1,82 @@
 {% extends "base.html" %}
-{% block title %}Панель{% endblock %}
+{% block title %}Главная{% endblock %}
 
 {% block content %}
-<div class="card">
-  <h1>Панель</h1>
+<div class="page-title">Главная страница</div>
 
-  <div class="section">
-    <h2>Пользователь</h2>
+<div class="dash-grid">
+  <div class="card">
+    <div class="card-title">Сведения о пользователе</div>
     <div class="kv">
-      <div class="k">Логин</div><div class="v">{{ user.login }}</div>
-      <div class="k">ФИО</div><div class="v">{{ user.name }} {{ user.firstname }} {{ user.otchestvo or "" }}</div>
-      <div class="k">Должность</div><div class="v">{{ user.position or "-" }}</div>
-    </div>
-  </div>
-
-  <div class="section">
-    <h2>Организация</h2>
-    <div class="kv">
-      <div class="k">ИНН</div><div class="v">{{ org.inn }}</div>
-      <div class="k">Название</div>
-      <div class="v">
-        {% if org.short_name or org.full_name %}
-          {{ org.short_name or org.full_name }}
-        {% else %}
-          не загружено (в базе только ИНН)
-        {% endif %}
+      <div class="kv-k">Логин</div>
+      <div class="kv-v">{{ user.login }}</div>
+      <div class="kv-k">Фамилия</div>
+      <div class="kv-v">{{ user.name }}</div>
+      <div class="kv-k">Имя</div>
+      <div class="kv-v">{{ user.firstname }}</div>
+      <div class="kv-k">Отчество</div>
+      <div class="kv-v">{{ user.otchestvo or "" }}</div>
+      <div class="kv-k">Должность</div>
+      <div class="kv-v">{{ user.position or "" }}</div>
+      <div class="kv-k">Роль</div>
+      <div class="kv-v">
+        {% if user.role == "admin" %}<span class="badge badge-admin">Администратор</span>
+        {% elif user.role == "operator" %}<span class="badge badge-operator">Оператор</span>
+        {% else %}<span class="badge badge-user">Сотрудник</span>{% endif %}
       </div>
     </div>
+  </div>
 
-    <div class="hint">
-      Можно проверить API:
-      <code>/v1/orgs/find/by_inn?inn={{ org.inn }}&view=full</code>
+  <div class="card">
+    <div class="card-title">Сведения об организации</div>
+    <div class="kv">
+      <div class="kv-k">ИНН</div>
+      <div class="kv-v">{{ org.inn }}</div>
+      <div class="kv-k">Краткое наименование</div>
+      <div class="kv-v">{{ org.short_name or "" }}</div>
+      <div class="kv-k">Полное наименование</div>
+      <div class="kv-v">{{ org.full_name or "" }}</div>
+      <div class="kv-k">ОГРН</div>
+      <div class="kv-v">{{ org.ogrn or "" }}</div>
+      <div class="kv-k">КПП</div>
+      <div class="kv-v">{{ org.kpp or "" }}</div>
+      <div class="kv-k">Адрес</div>
+      <div class="kv-v">{{ org.full_address_text or "" }}</div>
     </div>
   </div>
+</div>
+
+<div class="card">
+  <div class="card-title">
+    Последние заявки
+    <a href="{{ url_for('tickets.ticket_create') }}" class="btn btn-primary btn-sm" style="float:right;margin-top:-4px;">+ Создать заявку</a>
+  </div>
+  {% if tickets %}
+    <div class="ticket-row" style="font-size:12px;color:#7b8296;font-weight:600;text-transform:uppercase;letter-spacing:0.4px;border-top:none;">
+      <div>№</div><div>Статус</div><div>Приоритет</div><div>Тема</div><div>Категория</div><div style="text-align:right;">Дата</div>
+    </div>
+    {% for t in tickets %}
+      <a href="{{ url_for('tickets.ticket_detail', ticket_id=t.id) }}" class="ticket-row">
+        <div class="ticket-num">{{ t.id }}</div>
+        <div>
+          {% if t.status == "new" %}<span class="badge badge-new">Новая</span>
+          {% elif t.status == "in_progress" %}<span class="badge badge-in_progress">В работе</span>
+          {% elif t.status == "resolved" %}<span class="badge badge-resolved">Решена</span>
+          {% else %}<span class="badge badge-closed">Закрыта</span>{% endif %}
+        </div>
+        <div>
+          {% if t.priority == "low" %}<span class="badge badge-low">Низкий</span>
+          {% elif t.priority == "medium" %}<span class="badge badge-medium">Средний</span>
+          {% elif t.priority == "high" %}<span class="badge badge-high">Высокий</span>
+          {% else %}<span class="badge badge-critical">Критический</span>{% endif %}
+        </div>
+        <div class="ticket-subj">{{ t.subject }}</div>
+        <div class="ticket-cat">{{ t.category }}</div>
+        <div class="ticket-date">{{ t.created_at.strftime("%d.%m.%Y %H:%M") }}</div>
+      </a>
+    {% endfor %}
+  {% else %}
+    <div class="empty">Заявок нет</div>
+  {% endif %}
 </div>
 {% endblock %}

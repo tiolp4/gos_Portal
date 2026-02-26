@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Создать заявку{% endblock %}
+
+{% block content %}
+<div class="page-title">Создание заявки</div>
+
+<div style="max-width:640px;">
+  <div class="card">
+    <form method="post">
+      <label>Тема обращения <span style="color:#c0392b;">*</span></label>
+      <input type="text" name="subject" required>
+
+      <div class="form-row">
+        <div>
+          <label>Категория <span style="color:#c0392b;">*</span></label>
+          <select name="category" required>
+            <option value="">Выберите категорию...</option>
+            {% for c in categories %}
+              <option value="{{ c }}">{{ c }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div>
+          <label>Приоритет</label>
+          <select name="priority">
+            {% for p, label in [("low","Низкий"),("medium","Средний"),("high","Высокий"),("critical","Критический")] %}
+              <option value="{{ p }}" {% if p == "medium" %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <label>Описание проблемы <span style="color:#c0392b;">*</span></label>
+      <textarea name="description" rows="6" placeholder="Подробно опишите проблему..." required></textarea>
+
+      <div style="display:flex;gap:10px;margin-top:18px;">
+        <button type="submit" class="btn btn-primary">Отправить заявку</button>
+        <a href="{{ url_for('tickets.ticket_list') }}" class="btn btn-secondary">Отмена</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

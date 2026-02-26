@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Пользователи{% endblock %}
+
+{% block content %}
+<div class="page-title">Управление пользователями</div>
+
+<div class="card">
+  <table class="table">
+    <thead>
+      <tr>
+        <th>№</th>
+        <th>Логин</th>
+        <th>Фамилия Имя Отчество</th>
+        <th>Организация</th>
+        <th>Должность</th>
+        <th>Роль</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for u in users %}
+      <tr>
+        <td style="color:#555c6e;">{{ u.id }}</td>
+        <td>{{ u.login }}</td>
+        <td>{{ u.name }} {{ u.firstname }} {{ u.otchestvo or "" }}</td>
+        <td style="color:#7b8296;">{{ u.organization.short_name or u.organization.inn }}</td>
+        <td style="color:#7b8296;">{{ u.position or "" }}</td>
+        <td>
+          <form method="post" class="role-form">
+            <input type="hidden" name="user_id" value="{{ u.id }}">
+            <select name="role">
+              <option value="user" {% if u.role=="user" %}selected{% endif %}>Сотрудник</option>
+              <option value="operator" {% if u.role=="operator" %}selected{% endif %}>Оператор</option>
+              <option value="admin" {% if u.role=="admin" %}selected{% endif %}>Администратор</option>
+            </select>
+            <button type="submit" class="btn btn-secondary btn-sm">Сохранить</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

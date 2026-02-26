@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block title %}Заявка №{{ ticket.id }}{% endblock %}
+
+{% block content %}
+<div class="page-title">
+  Заявка №{{ ticket.id }}
+  <a href="{{ url_for('tickets.ticket_list') }}" class="btn btn-secondary btn-sm" style="float:right;margin-top:-2px;"> Назад</a>
+</div>
+
+<div class="dash-grid">
+  <div class="card">
+    <div class="card-title">Сведения о заявке</div>
+    <div class="kv">
+      <div class="kv-k">Тема</div><div class="kv-v">{{ ticket.subject }}</div>
+      <div class="kv-k">Категория</div><div class="kv-v">{{ ticket.category }}</div>
+      <div class="kv-k">Приоритет</div>
+      <div class="kv-v">
+        {% if ticket.priority == "low" %}<span class="badge badge-low">Низкий</span>
+        {% elif ticket.priority == "medium" %}<span class="badge badge-medium">Средний</span>
+        {% elif ticket.priority == "high" %}<span class="badge badge-high">Высокий</span>
+        {% else %}<span class="badge badge-critical">Критический</span>{% endif %}
+      </div>
+      <div class="kv-k">Статус</div>
+      <div class="kv-v">
+        {% if ticket.status == "new" %}<span class="badge badge-new">Новая</span>
+        {% elif ticket.status == "in_progress" %}<span class="badge badge-in_progress">В работе</span>
+        {% elif ticket.status == "resolved" %}<span class="badge badge-resolved">Решена</span>
+        {% else %}<span class="badge badge-closed">Закрыта</span>{% endif %}
+      </div>
+      <div class="kv-k">Создал</div><div class="kv-v">{{ ticket.creator.name }} {{ ticket.creator.firstname }}</div>
+      <div class="kv-k">Исполнитель</div>
+      <div class="kv-v">{% if ticket.assigned_to %}{{ ticket.assigned_to.name }} {{ ticket.assigned_to.firstname }}{% else %}{% endif %}</div>
+      <div class="kv-k">Дата создания</div><div class="kv-v">{{ ticket.created_at.strftime("%d.%m.%Y %H:%M") }}</div>
+      <div class="kv-k">Последнее изменение</div><div class="kv-v">{{ ticket.updated_at.strftime("%d.%m.%Y %H:%M") }}</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Описание проблемы</div>
+    <div class="desc-box">{{ ticket.description }}</div>
+
+    {% if user.role in ["operator", "admin"] %}
+    <div class="section">
+      <div class="section-title">Управление заявкой</div>
+      <div class="manage-bar">
+        <form method="post" action="{{ url_for('tickets.ticket_assign', ticket_id=ticket.id) }}">
+          <button type="submit" class="btn btn-secondary btn-sm">Взять в работу</button>
+        </form>
+        <form method="post" action="{{ url_for('tickets.ticket_status', ticket_id=ticket.id) }}">
+          <select name="status">
+            <option value="new" {% if ticket.status=="new" %}selected{% endif %}>Новая</option>
+            <option value="in_progress" {% if ticket.status=="in_progress" %}selected{% endif %}>В работе</option>
+            <option value="resolved" {% if ticket.status=="resolved" %}selected{% endif %}>Решена</option>
+            <option value="closed" {% if ticket.status=="closed" %}selected{% endif %}>Закрыта</option>
+          </select>
+          <button type="submit" class="btn btn-primary btn-sm">Сохранить</button>
+        </form>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">Переписка по заявке</div>
+
+  {% if messages %}
+    {% for msg in messages %}
+      <div class="msg-box {% if msg.author.role in ['operator', 'admin'] %}operator{% endif %}">
+        <div class="msg-meta">
+          <span class="msg-author">{{ msg.author.name }} {{ msg.author.firstname }}</span>
+          {% if msg.author.role == "admin" %}<span class="badge badge-admin">Администратор</span>
+          {% elif msg.author.role == "operator" %}<span class="badge badge-operator">Оператор</span>
+          {% else %}<span class="badge badge-user">Сотрудник</span>{% endif %}
+          <span class="msg-date">{{ msg.created_at.strftime("%d.%m.%Y %H:%M") }}</span>
+        </div>
+        <div class="msg-body">{{ msg.body }}</div>
+      </div>
+    {% endfor %}
+  {% else %}
+    <div class="empty">Сообщений нет</div>
+  {% endif %}
+
+  {% if ticket.status != "closed" %}
+  <div class="section">
+    <form method="post">
+      <label>Ваше сообщение</label>
+      <textarea name="body" rows="4" placeholder="Введите текст сообщения..." required></textarea>
+      <button type="submit" class="btn btn-primary btn-mt">Отправить сообщение</button>
+    </form>
+  </div>
+  {% else %}
+    <div class="alert error" style="margin-top:14px;">Заявка закрыта. Отправка сообщений недоступна.</div>
+  {% endif %}
+</div>
+{% endblock %}

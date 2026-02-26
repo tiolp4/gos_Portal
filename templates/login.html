@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+﻿{% extends "base.html" %}
 {% block title %}Вход{% endblock %}
 
 {% block content %}
@@ -16,9 +16,6 @@
       <input type="password" name="password" autocomplete="current-password" required>
       <button type="submit" class="btn btn-primary btn-mt" style="width:100%;">Войти в систему</button>
     </form>
-    <div style="text-align:center;margin-top:16px;color:#7b8296;font-size:13px;">
-      Нет учётной записи? <a href="{{ url_for('auth.register') }}">Регистрация</a>
-    </div>
   </div>
 </div>
 {% endblock %}

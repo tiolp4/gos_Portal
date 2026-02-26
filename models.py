@@ -1,9 +1,8 @@
-from datetime import datetime
+﻿from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
 
-TICKET_CATEGORIES = ["сбой", "ограничение доступа", "проблемы с сетью"]
 TICKET_PRIORITIES = ["low", "medium", "high", "critical"]
 TICKET_STATUSES = ["new", "in_progress", "resolved", "closed"]
 USER_ROLES = ["user", "operator", "admin"]
@@ -39,11 +38,19 @@ class User(db.Model):
     position = db.Column(db.String(150), nullable=True)
     login = db.Column(db.String(100), unique=True, nullable=False)
     password = db.Column(db.Text, nullable=False)
+    email = db.Column(db.String(255), nullable=True)
     role = db.Column(db.String(20), nullable=False, default="user")
 
     created_tickets = db.relationship("Ticket", foreign_keys="Ticket.creator_id", backref="creator", lazy=True)
     assigned_tickets = db.relationship("Ticket", foreign_keys="Ticket.assigned_to_id", backref="assigned_to", lazy=True)
     messages = db.relationship("TicketMessage", backref="author", lazy=True)
+
+
+class TicketCategory(db.Model):
+    __tablename__ = "ticket_categories"
+
+    id = db.Column(db.BigInteger, primary_key=True)
+    name = db.Column(db.String(100), unique=True, nullable=False)
 
 
 class Ticket(db.Model):
@@ -52,7 +59,7 @@ class Ticket(db.Model):
     id = db.Column(db.BigInteger, primary_key=True)
     subject = db.Column(db.String(255), nullable=False)
     description = db.Column(db.Text, nullable=False)
-    category = db.Column(db.String(50), nullable=False)
+    category = db.Column(db.String(100), nullable=False)
     priority = db.Column(db.String(20), nullable=False, default="medium")
     status = db.Column(db.String(20), nullable=False, default="new")
     creator_id = db.Column(db.BigInteger, db.ForeignKey("users.id"), nullable=False)

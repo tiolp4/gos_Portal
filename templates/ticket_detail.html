@@ -1,10 +1,10 @@
-{% extends "base.html" %}
+﻿{% extends "base.html" %}
 {% block title %}Заявка №{{ ticket.id }}{% endblock %}
 
 {% block content %}
 <div class="page-title">
   Заявка №{{ ticket.id }}
-  <a href="{{ url_for('tickets.ticket_list') }}" class="btn btn-secondary btn-sm" style="float:right;margin-top:-2px;"> Назад</a>
+  <a href="{{ url_for('tickets.ticket_list') }}" class="btn btn-secondary btn-sm" style="float:right;margin-top:-2px;">← Назад</a>
 </div>
 
 <div class="dash-grid">
@@ -29,7 +29,7 @@
       </div>
       <div class="kv-k">Создал</div><div class="kv-v">{{ ticket.creator.name }} {{ ticket.creator.firstname }}</div>
       <div class="kv-k">Исполнитель</div>
-      <div class="kv-v">{% if ticket.assigned_to %}{{ ticket.assigned_to.name }} {{ ticket.assigned_to.firstname }}{% else %}{% endif %}</div>
+      <div class="kv-v">{% if ticket.assigned_to %}{{ ticket.assigned_to.name }} {{ ticket.assigned_to.firstname }}{% else %}—{% endif %}</div>
       <div class="kv-k">Дата создания</div><div class="kv-v">{{ ticket.created_at.strftime("%d.%m.%Y %H:%M") }}</div>
       <div class="kv-k">Последнее изменение</div><div class="kv-v">{{ ticket.updated_at.strftime("%d.%m.%Y %H:%M") }}</div>
     </div>
@@ -43,18 +43,44 @@
     <div class="section">
       <div class="section-title">Управление заявкой</div>
       <div class="manage-bar">
+
         <form method="post" action="{{ url_for('tickets.ticket_assign', ticket_id=ticket.id) }}">
           <button type="submit" class="btn btn-secondary btn-sm">Взять в работу</button>
         </form>
+
         <form method="post" action="{{ url_for('tickets.ticket_status', ticket_id=ticket.id) }}">
           <select name="status">
-            <option value="new" {% if ticket.status=="new" %}selected{% endif %}>Новая</option>
-            <option value="in_progress" {% if ticket.status=="in_progress" %}selected{% endif %}>В работе</option>
-            <option value="resolved" {% if ticket.status=="resolved" %}selected{% endif %}>Решена</option>
-            <option value="closed" {% if ticket.status=="closed" %}selected{% endif %}>Закрыта</option>
+            {% for s, label in [("new","Новая"),("in_progress","В работе"),("resolved","Решена"),("closed","Закрыта")] %}
+              <option value="{{ s }}" {% if ticket.status == s %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
           </select>
-          <button type="submit" class="btn btn-primary btn-sm">Сохранить</button>
+          <button type="submit" class="btn btn-primary btn-sm">Статус</button>
         </form>
+
+        <form method="post" action="{{ url_for('tickets.ticket_category', ticket_id=ticket.id) }}">
+          <select name="category">
+            {% for c in categories %}
+              <option value="{{ c.name }}" {% if ticket.category == c.name %}selected{% endif %}>{{ c.name }}</option>
+            {% endfor %}
+          </select>
+          <button type="submit" class="btn btn-primary btn-sm">Категория</button>
+        </form>
+
+        <form method="post" action="{{ url_for('tickets.ticket_priority', ticket_id=ticket.id) }}">
+          <select name="priority">
+            {% for p, label in [("low","Низкий"),("medium","Средний"),("high","Высокий"),("critical","Критический")] %}
+              <option value="{{ p }}" {% if ticket.priority == p %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+          <button type="submit" class="btn btn-primary btn-sm">Приоритет</button>
+        </form>
+
+        {% if ticket.status != "closed" %}
+        <form method="post" action="{{ url_for('tickets.ticket_close', ticket_id=ticket.id) }}" onsubmit="return confirm('Закрыть заявку?');">
+          <button type="submit" class="btn btn-sm" style="background:rgba(192,57,43,0.15);color:#e07070;border:none;">Закрыть заявку</button>
+        </form>
+        {% endif %}
+
       </div>
     </div>
     {% endif %}
@@ -86,8 +112,29 @@
     <form method="post">
       <label>Ваше сообщение</label>
       <textarea name="body" rows="4" placeholder="Введите текст сообщения..." required></textarea>
-      <button type="submit" class="btn btn-primary btn-mt">Отправить сообщение</button>
+      <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;">
+        <button type="submit" class="btn btn-primary">Отправить сообщение</button>
+        {% if user.role in ["operator", "admin"] %}
+        <button type="submit" form="form-close-msg" class="btn btn-sm" style="background:rgba(192,57,43,0.15);color:#e07070;border:none;">Отправить и закрыть заявку</button>
+        {% endif %}
+      </div>
     </form>
+
+    {% if user.role in ["operator", "admin"] %}
+    <form id="form-close-msg" method="post" action="{{ url_for('tickets.ticket_close_with_message', ticket_id=ticket.id) }}" style="display:none;">
+      <textarea name="body" id="hidden-body"></textarea>
+    </form>
+    <script>
+      document.querySelector('[form="form-close-msg"]').addEventListener("click", function(e) {
+        e.preventDefault();
+        var body = document.querySelector("textarea[name='body']").value.trim();
+        if (!body) { alert("Введите текст сообщения."); return; }
+        if (!confirm("Отправить сообщение и закрыть заявку?")) return;
+        document.getElementById("hidden-body").value = body;
+        document.getElementById("form-close-msg").submit();
+      });
+    </script>
+    {% endif %}
   </div>
   {% else %}
     <div class="alert error" style="margin-top:14px;">Заявка закрыта. Отправка сообщений недоступна.</div>

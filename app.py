@@ -1,4 +1,4 @@
-import os
+﻿import os
 from flask import Flask, redirect, url_for
 from werkzeug.security import generate_password_hash
 from sqlalchemy import text, inspect
@@ -6,12 +6,16 @@ from sqlalchemy import text, inspect
 from models import db, User, Organization
 
 app = Flask(__name__, template_folder="templates", static_folder="static")
-app.config["SECRET_KEY"] = "super-secret-key-gov"
+app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "super-secret-key-gov")
 app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv(
     "DATABASE_URL",
-    "postgresql+psycopg2://db1:db1@10.1.92.144:5432/gov_portal"
+    "postgresql+psycopg2://db1:db1@db:5432/gov_portal"
 )
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+app.config["MAIL_HOST"] = "smtp.yandex.ru"
+app.config["MAIL_PORT"] = 465
+app.config["MAIL_USER"] = os.getenv("MAIL_USER", "")
+app.config["MAIL_PASSWORD"] = os.getenv("MAIL_PASSWORD", "")
 
 db.init_app(app)
 
@@ -43,7 +47,7 @@ def init_db():
 
         inspector = inspect(db.engine)
         if inspector.has_table("users"):
-            print("Таблицы уже существуют  пропуск инициализации")
+            print("Таблицы уже существуют — пропуск инициализации")
             return
 
         db.create_all()
@@ -61,6 +65,7 @@ def init_db():
             position="Администратор",
             login="admin",
             password=generate_password_hash("admin"),
+            email=os.getenv("MAIL_USER", ""),
             role="admin",
         )
         db.session.add(admin_user)
@@ -70,4 +75,4 @@ def init_db():
 
 if __name__ == "__main__":
     init_db()
-    app.run(debug=True)
+    app.run(host="0.0.0.0", debug=False)

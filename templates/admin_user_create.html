@@ -1,0 +1,63 @@
+﻿{% extends "base.html" %}
+{% block title %}Создать пользователя{% endblock %}
+
+{% block content %}
+<div class="page-title">
+  Создание пользователя
+  <a href="{{ url_for('admin.admin_users') }}" class="btn btn-secondary btn-sm" style="float:right;margin-top:-2px;"> Назад</a>
+</div>
+
+<div style="max-width:600px;">
+  <div class="card">
+    <form method="post">
+      <div class="form-row">
+        <div>
+          <label>Фамилия <span style="color:#c0392b;">*</span></label>
+          <input type="text" name="surname" required>
+        </div>
+        <div>
+          <label>Имя <span style="color:#c0392b;">*</span></label>
+          <input type="text" name="name" required>
+        </div>
+        <div>
+          <label>Отчество</label>
+          <input type="text" name="patronymic">
+        </div>
+        <div>
+          <label>Должность</label>
+          <input type="text" name="position">
+        </div>
+      </div>
+
+      <label>ИНН организации <span style="color:#c0392b;">*</span></label>
+      <input type="text" name="inn" placeholder="10 или 12 цифр" required>
+
+      <label>Email</label>
+      <input type="text" name="email" placeholder="user@example.com">
+
+      <div class="form-row">
+        <div>
+          <label>Логин <span style="color:#c0392b;">*</span></label>
+          <input type="text" name="login" required>
+        </div>
+        <div>
+          <label>Пароль <span style="color:#c0392b;">*</span></label>
+          <input type="text" name="password" required>
+        </div>
+      </div>
+
+      <label>Роль</label>
+      <select name="role">
+        {% for r in roles %}
+          <option value="{{ r }}">{{ r }}</option>
+        {% endfor %}
+      </select>
+
+      <div style="display:flex;gap:10px;margin-top:18px;">
+        <button type="submit" class="btn btn-primary">Создать</button>
+        <a href="{{ url_for('admin.admin_users') }}" class="btn btn-secondary">Отмена</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

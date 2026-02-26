@@ -1,16 +1,20 @@
-{% extends "base.html" %}
+﻿{% extends "base.html" %}
 {% block title %}Пользователи{% endblock %}
 
 {% block content %}
-<div class="page-title">Управление пользователями</div>
+<div class="page-title">
+  Управление пользователями
+  <a href="{{ url_for('admin.admin_user_create') }}" class="btn btn-primary btn-sm" style="float:right;margin-top:-2px;">+ Создать пользователя</a>
+</div>
 
 <div class="card">
   <table class="table">
     <thead>
       <tr>
-        <th>№</th>
+        <th></th>
         <th>Логин</th>
         <th>Фамилия Имя Отчество</th>
+        <th>Email</th>
         <th>Организация</th>
         <th>Должность</th>
         <th>Роль</th>
@@ -22,6 +26,7 @@
         <td style="color:#555c6e;">{{ u.id }}</td>
         <td>{{ u.login }}</td>
         <td>{{ u.name }} {{ u.firstname }} {{ u.otchestvo or "" }}</td>
+        <td style="color:#7b8296;">{{ u.email or "" }}</td>
         <td style="color:#7b8296;">{{ u.organization.short_name or u.organization.inn }}</td>
         <td style="color:#7b8296;">{{ u.position or "" }}</td>
         <td>

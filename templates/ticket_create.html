@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+﻿{% extends "base.html" %}
 {% block title %}Создать заявку{% endblock %}
 
 {% block content %}
@@ -16,7 +16,7 @@
           <select name="category" required>
             <option value="">Выберите категорию...</option>
             {% for c in categories %}
-              <option value="{{ c }}">{{ c }}</option>
+              <option value="{{ c.name }}">{{ c.name }}</option>
             {% endfor %}
           </select>
         </div>

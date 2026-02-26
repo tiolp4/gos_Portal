@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
@@ -19,7 +19,8 @@
       <a href="{{ url_for('dashboard.dashboard') }}" {% if request.endpoint == 'dashboard.dashboard' %}class="active"{% endif %}>Главная</a>
       <a href="{{ url_for('tickets.ticket_list') }}" {% if request.blueprint == 'tickets' %}class="active"{% endif %}>Заявки</a>
       {% if session.get("user_role") == "admin" %}
-        <a href="{{ url_for('admin.admin_users') }}" {% if request.blueprint == 'admin' %}class="active"{% endif %}>Пользователи</a>
+        <a href="{{ url_for('admin.admin_users') }}" {% if request.endpoint == 'admin.admin_users' %}class="active"{% endif %}>Пользователи</a>
+        <a href="{{ url_for('admin.admin_categories') }}" {% if request.endpoint == 'admin.admin_categories' %}class="active"{% endif %}>Категории</a>
       {% endif %}
       <div class="header-sep"></div>
       <div class="header-user">Вы вошли как: <span>{{ session.get("user_login") }}</span></div>
@@ -31,7 +32,6 @@
 
 <div class="main">
   <div class="wrap">
-
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
         {% for category, message in messages %}
@@ -39,9 +39,7 @@
         {% endfor %}
       {% endif %}
     {% endwith %}
-
     {% block content %}{% endblock %}
-
   </div>
 </div>
 

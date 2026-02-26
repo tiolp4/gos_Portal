@@ -1,0 +1,40 @@
+﻿{% extends "base.html" %}
+{% block title %}Пользователь создан{% endblock %}
+
+{% block content %}
+<div class="page-title">Пользователь создан</div>
+
+<div style="max-width:540px;">
+  <div class="card">
+    <div class="card-title">Учётные данные</div>
+    <div class="kv">
+      <div class="kv-k">Логин</div>
+      <div class="kv-v" id="cred-login">{{ login }}</div>
+      <div class="kv-k">Пароль</div>
+      <div class="kv-v" id="cred-password">{{ password }}</div>
+      <div class="kv-k">Email</div>
+      <div class="kv-v">{{ email or "" }}</div>
+    </div>
+
+    <div style="display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;">
+      <button onclick="copyCredentials()" class="btn btn-secondary">Скопировать данные</button>
+      {% if email %}
+      <form method="post" action="{{ url_for('admin.admin_send_email', user_id=user.id) }}">
+        <input type="hidden" name="plain_password" value="{{ password }}">
+        <button type="submit" class="btn btn-primary">Отправить на почту</button>
+      </form>
+      {% endif %}
+      <a href="{{ url_for('admin.admin_users') }}" class="btn btn-secondary">К списку пользователей</a>
+    </div>
+  </div>
+</div>
+
+<script>
+function copyCredentials() {
+  var login = document.getElementById("cred-login").innerText;
+  var password = document.getElementById("cred-password").innerText;
+  var text = "Логин: " + login + "\nПароль: " + password;
+  navigator.clipboard.writeText(text).then(function() { alert("Скопировано!"); });
+}
+</script>
+{% endblock %}

@@ -1,0 +1,52 @@
+﻿{% extends "base.html" %}
+{% block title %}Категории{% endblock %}
+
+{% block content %}
+<div class="page-title">Управление категориями заявок</div>
+
+<div style="max-width:600px;">
+  <div class="card">
+    <div class="card-title">Добавить категорию</div>
+    <form method="post" style="display:flex;gap:10px;align-items:flex-end;">
+      <input type="hidden" name="action" value="add">
+      <div style="flex:1;">
+        <label>Название категории</label>
+        <input type="text" name="name" placeholder="Например: сломался принтер" required>
+      </div>
+      <button type="submit" class="btn btn-primary" style="margin-bottom:0;">Добавить</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Список категорий</div>
+    {% if categories %}
+      <table class="table">
+        <thead>
+          <tr>
+            <th></th>
+            <th>Название</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for cat in categories %}
+          <tr>
+            <td style="color:#555c6e;">{{ cat.id }}</td>
+            <td>{{ cat.name }}</td>
+            <td>
+              <form method="post" onsubmit="return confirm('Удалить категорию {{ cat.name }}?');">
+                <input type="hidden" name="action" value="delete">
+                <input type="hidden" name="cat_id" value="{{ cat.id }}">
+                <button type="submit" class="btn btn-sm" style="background:rgba(192,57,43,0.15);color:#e07070;border:none;">Удалить</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <div class="empty">Категорий пока нет</div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

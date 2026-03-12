@@ -1,10 +1,12 @@
 ﻿{% extends "base.html" %}
-{% block title %}Заявка №{{ ticket.id }}{% endblock %}
+{% block title %}Заявка #{{ ticket.id }}{% endblock %}
 
 {% block content %}
 <div class="page-title">
-  Заявка №{{ ticket.id }}
-  <a href="{{ url_for('tickets.ticket_list') }}" class="btn btn-secondary btn-sm" style="float:right;margin-top:-2px;">← Назад</a>
+  Заявка #{{ ticket.id }}
+  <a href="{{ url_for('tickets.ticket_list') }}" class="btn btn-secondary btn-sm">
+    <i data-lucide="arrow-left" style="width:14px;height:14px;"></i> Назад
+  </a>
 </div>
 
 <div class="dash-grid">
@@ -30,8 +32,8 @@
       <div class="kv-k">Создал</div><div class="kv-v">{{ ticket.creator.name }} {{ ticket.creator.firstname }}</div>
       <div class="kv-k">Исполнитель</div>
       <div class="kv-v">{% if ticket.assigned_to %}{{ ticket.assigned_to.name }} {{ ticket.assigned_to.firstname }}{% else %}—{% endif %}</div>
-      <div class="kv-k">Дата создания</div><div class="kv-v">{{ ticket.created_at.strftime("%d.%m.%Y %H:%M") }}</div>
-      <div class="kv-k">Последнее изменение</div><div class="kv-v">{{ ticket.updated_at.strftime("%d.%m.%Y %H:%M") }}</div>
+      <div class="kv-k">Создана</div><div class="kv-v">{{ ticket.created_at.strftime("%d.%m.%Y %H:%M") }}</div>
+      <div class="kv-k">Обновлена</div><div class="kv-v">{{ ticket.updated_at.strftime("%d.%m.%Y %H:%M") }}</div>
     </div>
   </div>
 
@@ -43,7 +45,6 @@
     <div class="section">
       <div class="section-title">Управление заявкой</div>
       <div class="manage-bar">
-
         <form method="post" action="{{ url_for('tickets.ticket_assign', ticket_id=ticket.id) }}">
           <button type="submit" class="btn btn-secondary btn-sm">Взять в работу</button>
         </form>
@@ -51,7 +52,7 @@
         <form method="post" action="{{ url_for('tickets.ticket_status', ticket_id=ticket.id) }}">
           <select name="status">
             {% for s, label in [("new","Новая"),("in_progress","В работе"),("resolved","Решена"),("closed","Закрыта")] %}
-              <option value="{{ s }}" {% if ticket.status == s %}selected{% endif %}>{{ label }}</option>
+              <option value="{{ s }}" {{ 'selected' if ticket.status == s else '' }}>{{ label }}</option>
             {% endfor %}
           </select>
           <button type="submit" class="btn btn-primary btn-sm">Статус</button>
@@ -60,7 +61,7 @@
         <form method="post" action="{{ url_for('tickets.ticket_category', ticket_id=ticket.id) }}">
           <select name="category">
             {% for c in categories %}
-              <option value="{{ c.name }}" {% if ticket.category == c.name %}selected{% endif %}>{{ c.name }}</option>
+              <option value="{{ c.name }}" {{ 'selected' if ticket.category == c.name else '' }}>{{ c.name }}</option>
             {% endfor %}
           </select>
           <button type="submit" class="btn btn-primary btn-sm">Категория</button>
@@ -69,7 +70,7 @@
         <form method="post" action="{{ url_for('tickets.ticket_priority', ticket_id=ticket.id) }}">
           <select name="priority">
             {% for p, label in [("low","Низкий"),("medium","Средний"),("high","Высокий"),("critical","Критический")] %}
-              <option value="{{ p }}" {% if ticket.priority == p %}selected{% endif %}>{{ label }}</option>
+              <option value="{{ p }}" {{ 'selected' if ticket.priority == p else '' }}>{{ label }}</option>
             {% endfor %}
           </select>
           <button type="submit" class="btn btn-primary btn-sm">Приоритет</button>
@@ -77,10 +78,9 @@
 
         {% if ticket.status != "closed" %}
         <form method="post" action="{{ url_for('tickets.ticket_close', ticket_id=ticket.id) }}" onsubmit="return confirm('Закрыть заявку?');">
-          <button type="submit" class="btn btn-sm" style="background:rgba(192,57,43,0.15);color:#e07070;border:none;">Закрыть заявку</button>
+          <button type="submit" class="btn btn-danger btn-sm">Закрыть заявку</button>
         </form>
         {% endif %}
-
       </div>
     </div>
     {% endif %}
@@ -92,7 +92,7 @@
 
   {% if messages %}
     {% for msg in messages %}
-      <div class="msg-box {% if msg.author.role in ['operator', 'admin'] %}operator{% endif %}">
+      <div class="msg-box {{ 'operator' if msg.author.role in ['operator','admin'] else '' }}">
         <div class="msg-meta">
           <span class="msg-author">{{ msg.author.name }} {{ msg.author.firstname }}</span>
           {% if msg.author.role == "admin" %}<span class="badge badge-admin">Администратор</span>
@@ -104,7 +104,7 @@
       </div>
     {% endfor %}
   {% else %}
-    <div class="empty">Сообщений нет</div>
+    <div class="empty">Сообщений пока нет</div>
   {% endif %}
 
   {% if ticket.status != "closed" %}
@@ -112,10 +112,10 @@
     <form method="post">
       <label>Ваше сообщение</label>
       <textarea name="body" rows="4" placeholder="Введите текст сообщения..." required></textarea>
-      <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;">
+      <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;">
         <button type="submit" class="btn btn-primary">Отправить сообщение</button>
         {% if user.role in ["operator", "admin"] %}
-        <button type="submit" form="form-close-msg" class="btn btn-sm" style="background:rgba(192,57,43,0.15);color:#e07070;border:none;">Отправить и закрыть заявку</button>
+        <button type="submit" form="form-close-msg" class="btn btn-danger btn-sm">Отправить и закрыть</button>
         {% endif %}
       </div>
     </form>
@@ -140,4 +140,6 @@
     <div class="alert error" style="margin-top:14px;">Заявка закрыта. Отправка сообщений недоступна.</div>
   {% endif %}
 </div>
+
+<script>lucide.createIcons();</script>
 {% endblock %}

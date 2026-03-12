@@ -1,4 +1,7 @@
-﻿import os
+﻿from dotenv import load_dotenv
+load_dotenv()
+
+import os
 from flask import Flask, redirect, url_for
 from werkzeug.security import generate_password_hash
 from sqlalchemy import text, inspect
@@ -24,12 +27,14 @@ from routes.dashboard import dashboard_bp
 from routes.tickets import tickets_bp
 from routes.admin import admin_bp
 from routes.api import api_bp
+from routes.analytics import analytics_bp          # <-- НОВОЕ
 
 app.register_blueprint(auth_bp)
 app.register_blueprint(dashboard_bp)
 app.register_blueprint(tickets_bp)
 app.register_blueprint(admin_bp)
 app.register_blueprint(api_bp)
+app.register_blueprint(analytics_bp)               # <-- НОВОЕ
 
 
 @app.route("/")

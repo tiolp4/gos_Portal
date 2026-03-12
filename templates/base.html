@@ -1,9 +1,12 @@
 ﻿<!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block title %}Портал{% endblock %}  ГИС Поддержка</title>
+  <title>{% block title %}Портал{% endblock %} — ГИС Поддержка</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
@@ -16,15 +19,49 @@
       <div class="header-logo-text">ГИС Портал</div>
     </div>
     <div class="header-nav">
-      <a href="{{ url_for('dashboard.dashboard') }}" {% if request.endpoint == 'dashboard.dashboard' %}class="active"{% endif %}>Главная</a>
-      <a href="{{ url_for('tickets.ticket_list') }}" {% if request.blueprint == 'tickets' %}class="active"{% endif %}>Заявки</a>
-      {% if session.get("user_role") == "admin" %}
-        <a href="{{ url_for('admin.admin_users') }}" {% if request.endpoint == 'admin.admin_users' %}class="active"{% endif %}>Пользователи</a>
-        <a href="{{ url_for('admin.admin_categories') }}" {% if request.endpoint == 'admin.admin_categories' %}class="active"{% endif %}>Категории</a>
+      <a href="{{ url_for('dashboard.dashboard') }}"
+         class="{{ 'active' if request.endpoint == 'dashboard.dashboard' else '' }}">
+        <i data-lucide="layout-dashboard"></i> Главная
+      </a>
+
+      <a href="{{ url_for('tickets.ticket_list') }}"
+         class="{{ 'active' if request.blueprint == 'tickets' else '' }}">
+        <i data-lucide="ticket"></i> Заявки
+      </a>
+
+      {% if session.get("user_role") in ["admin", "operator"] %}
+      <a href="{{ url_for('analytics.admin_analytics') }}"
+         class="{{ 'active' if request.blueprint == 'analytics' else '' }}">
+        <i data-lucide="bar-chart-3"></i> Аналитика
+      </a>
       {% endif %}
+
+      {% if session.get("user_role") == "admin" %}
+      <a href="{{ url_for('admin.admin_users') }}"
+         class="{{ 'active' if request.endpoint == 'admin.admin_users' else '' }}">
+        <i data-lucide="users"></i> Пользователи
+      </a>
+      <a href="{{ url_for('admin.admin_categories') }}"
+         class="{{ 'active' if request.endpoint == 'admin.admin_categories' else '' }}">
+        <i data-lucide="tag"></i> Категории
+      </a>
+      {% endif %}
+
       <div class="header-sep"></div>
-      <div class="header-user">Вы вошли как: <span>{{ session.get("user_login") }}</span></div>
-      <a href="{{ url_for('auth.logout') }}">Выход</a>
+
+      <div class="header-user">
+        <i data-lucide="user" style="width:14px;height:14px;"></i>
+        <strong>{{ session.get("user_login") }}</strong>
+      </div>
+
+      <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему">
+        <i data-lucide="sun" id="theme-icon-sun" style="display:none;"></i>
+        <i data-lucide="moon" id="theme-icon-moon"></i>
+      </button>
+
+      <a href="{{ url_for('auth.logout') }}">
+        <i data-lucide="log-out"></i> Выход
+      </a>
     </div>
   </div>
 </div>
@@ -42,6 +79,32 @@
     {% block content %}{% endblock %}
   </div>
 </div>
+
+<script>
+  lucide.createIcons();
+
+  function getTheme() {
+    return localStorage.getItem('theme') || 'dark';
+  }
+
+  function applyTheme(t) {
+    document.documentElement.setAttribute('data-theme', t);
+    var sun = document.getElementById('theme-icon-sun');
+    var moon = document.getElementById('theme-icon-moon');
+    if (sun && moon) {
+      sun.style.display = t === 'light' ? 'block' : 'none';
+      moon.style.display = t === 'dark' ? 'block' : 'none';
+    }
+  }
+
+  function toggleTheme() {
+    var t = getTheme() === 'dark' ? 'light' : 'dark';
+    localStorage.setItem('theme', t);
+    applyTheme(t);
+  }
+
+  applyTheme(getTheme());
+</script>
 
 </body>
 </html>

@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% block title %}Аналитика{% endblock %}
+
+{% block content %}
+<div class="page-title">Аналитика</div>
+
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-number">{{ summary.total }}</div>
+    <div class="stat-label">Всего заявок</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-number accent">{{ summary.open }}</div>
+    <div class="stat-label">Открытых</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-number ok">{{ summary.closed }}</div>
+    <div class="stat-label">Закрытых</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-number warn">{{ summary.unassigned }}</div>
+    <div class="stat-label">Не назначено</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-number">{{ avg_response }}</div>
+    <div class="stat-label">Ср. время ответа</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-number">{{ avg_resolution }}</div>
+    <div class="stat-label">Ср. время решения</div>
+  </div>
+</div>
+
+<div class="card" style="margin-top:20px">
+  <div class="card-title">Создано / закрыто заявок по дням (30 дней)</div>
+  <canvas id="chartFlow" height="90"></canvas>
+</div>
+
+<div class="dash-grid" style="margin-top:16px">
+  <div class="card">
+    <div class="card-title">Среднее время первого ответа (часы)</div>
+    <canvas id="chartResponse" height="120"></canvas>
+  </div>
+  <div class="card">
+    <div class="card-title">Среднее время решения (часы)</div>
+    <canvas id="chartResolution" height="120"></canvas>
+  </div>
+</div>
+
+<div class="dash-grid" style="margin-top:16px">
+  <div class="card">
+    <div class="card-title">По статусам</div>
+    <canvas id="chartStatus" height="140"></canvas>
+  </div>
+  <div class="card">
+    <div class="card-title">По приоритетам</div>
+    <canvas id="chartPriority" height="140"></canvas>
+  </div>
+</div>
+
+<div class="card" style="margin-top:16px">
+  <div class="card-title">По категориям</div>
+  <canvas id="chartCategory" height="70"></canvas>
+</div>
+
+<div class="card" style="margin-top:16px">
+  <div class="card-title">Статистика операторов</div>
+  {% if operator_stats %}
+  <table class="table">
+    <thead>
+      <tr><th>Оператор</th><th>Логин</th><th>Назначено</th><th>Закрыто</th><th>Ср. время решения</th></tr>
+    </thead>
+    <tbody>
+      {% for op in operator_stats %}
+      <tr>
+        <td>{{ op.name }}</td><td>{{ op.login }}</td>
+        <td>{{ op.assigned }}</td><td>{{ op.closed }}</td>
+        <td>{{ op.avg_resolution }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty">Нет данных</div>
+  {% endif %}
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+<script>
+(function(){
+  var style = getComputedStyle(document.documentElement);
+  var muted = style.getPropertyValue('--text-muted').trim();
+  var border = style.getPropertyValue('--border').trim();
+
+  Chart.defaults.color = muted;
+  Chart.defaults.borderColor = border;
+
+  var C = {
+    blue:'rgba(91,141,239,0.7)', green:'rgba(52,211,153,0.7)',
+    orange:'rgba(245,158,11,0.7)', red:'rgba(239,91,91,0.7)',
+    muted:'rgba(136,145,165,0.4)'
+  };
+
+  new Chart(document.getElementById('chartFlow'),{type:'line',data:{labels:{{ flow_labels|tojson }},datasets:[
+    {label:'Создано',data:{{ flow_created|tojson }},borderColor:C.blue,backgroundColor:'rgba(91,141,239,0.08)',fill:true,tension:0.4,pointRadius:2},
+    {label:'Закрыто',data:{{ flow_closed|tojson }},borderColor:C.green,backgroundColor:'rgba(52,211,153,0.08)',fill:true,tension:0.4,pointRadius:2}
+  ]},options:{responsive:true,scales:{x:{ticks:{maxTicksLimit:15,font:{size:11}}},y:{beginAtZero:true,ticks:{stepSize:1}}}}});
+
+  new Chart(document.getElementById('chartResponse'),{type:'bar',data:{labels:{{ response_labels|tojson }},datasets:[{data:{{ response_values|tojson }},backgroundColor:C.blue,borderRadius:4}]},
+    options:{responsive:true,plugins:{legend:{display:false}},scales:{x:{ticks:{maxTicksLimit:10,font:{size:10}}},y:{beginAtZero:true,title:{display:true,text:'часы'}}}}});
+
+  new Chart(document.getElementById('chartResolution'),{type:'bar',data:{labels:{{ resolution_labels|tojson }},datasets:[{data:{{ resolution_values|tojson }},backgroundColor:C.green,borderRadius:4}]},
+    options:{responsive:true,plugins:{legend:{display:false}},scales:{x:{ticks:{maxTicksLimit:10,font:{size:10}}},y:{beginAtZero:true,title:{display:true,text:'часы'}}}}});
+
+  new Chart(document.getElementById('chartStatus'),{type:'doughnut',data:{labels:{{ sta_labels|tojson }},datasets:[{data:{{ sta_values|tojson }},backgroundColor:[C.blue,C.orange,C.green,C.muted],borderWidth:0}]},
+    options:{responsive:true,plugins:{legend:{position:'right'}}}});
+
+  new Chart(document.getElementById('chartPriority'),{type:'doughnut',data:{labels:{{ pri_labels|tojson }},datasets:[{data:{{ pri_values|tojson }},backgroundColor:[C.muted,C.blue,C.orange,C.red],borderWidth:0}]},
+    options:{responsive:true,plugins:{legend:{position:'right'}}}});
+
+  new Chart(document.getElementById('chartCategory'),{type:'bar',data:{labels:{{ cat_labels|tojson }},datasets:[{label:'Заявок',data:{{ cat_values|tojson }},backgroundColor:C.blue,borderRadius:4}]},
+    options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,ticks:{stepSize:1}}}}});
+})();
+</script>
+{% endblock %}

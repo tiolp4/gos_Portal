@@ -2,8 +2,12 @@
 {% block title %}Недоступно{% endblock %}
 {% block content %}
 <div class="form-center">
-  <div class="card">
-    <div class="empty">Регистрация недоступна. Обратитесь к администратору.</div>
+  <div class="card" style="text-align:center;">
+    <div style="margin-bottom:16px;">
+      <i data-lucide="shield-x" style="width:48px;height:48px;color:var(--text-dim);"></i>
+    </div>
+    <div class="empty" style="padding:0;">Регистрация недоступна. Обратитесь к администратору.</div>
   </div>
 </div>
+<script>lucide.createIcons();</script>
 {% endblock %}

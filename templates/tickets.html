@@ -4,31 +4,33 @@
 {% block content %}
 <div class="page-title">
   Реестр заявок
-  <a href="{{ url_for('tickets.ticket_create') }}" class="btn btn-primary btn-sm" style="float:right;margin-top:-2px;">+ Создать заявку</a>
+  <a href="{{ url_for('tickets.ticket_create') }}" class="btn btn-primary btn-sm">
+    <i data-lucide="plus" style="width:14px;height:14px;"></i> Создать заявку
+  </a>
 </div>
 
 <div class="card">
   <form method="get" class="filter-bar">
     <select name="status">
       <option value="">Все статусы</option>
-      <option value="new" {% if current_status=="new" %}selected{% endif %}>Новая</option>
-      <option value="in_progress" {% if current_status=="in_progress" %}selected{% endif %}>В работе</option>
-      <option value="resolved" {% if current_status=="resolved" %}selected{% endif %}>Решена</option>
-      <option value="closed" {% if current_status=="closed" %}selected{% endif %}>Закрыта</option>
+      <option value="new" {{ 'selected' if current_status=='new' else '' }}>Новая</option>
+      <option value="in_progress" {{ 'selected' if current_status=='in_progress' else '' }}>В работе</option>
+      <option value="resolved" {{ 'selected' if current_status=='resolved' else '' }}>Решена</option>
+      <option value="closed" {{ 'selected' if current_status=='closed' else '' }}>Закрыта</option>
     </select>
     <select name="category">
       <option value="">Все категории</option>
       {% for c in categories %}
-        <option value="{{ c.name }}" {% if current_category==c.name %}selected{% endif %}>{{ c.name }}</option>
+        <option value="{{ c.name }}" {{ 'selected' if current_category==c.name else '' }}>{{ c.name }}</option>
       {% endfor %}
     </select>
-    <button type="submit" class="btn btn-secondary">Применить</button>
-    <a href="{{ url_for('tickets.ticket_list') }}" class="btn btn-secondary">Сбросить</a>
+    <button type="submit" class="btn btn-secondary btn-sm">Применить</button>
+    <a href="{{ url_for('tickets.ticket_list') }}" class="btn btn-secondary btn-sm">Сбросить</a>
   </form>
 
   {% if tickets %}
-    <div class="ticket-row" style="font-size:12px;color:#7b8296;font-weight:600;text-transform:uppercase;letter-spacing:0.4px;border-top:none;">
-      <div>№</div><div>Статус</div><div>Приоритет</div><div>Тема</div><div>Категория</div><div style="text-align:right;">Дата</div>
+    <div class="ticket-row" style="font-size:11px;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;border-top:none;">
+      <div>#</div><div>Статус</div><div>Приоритет</div><div>Тема</div><div>Категория</div><div style="text-align:right;">Дата</div>
     </div>
     {% for t in tickets %}
       <a href="{{ url_for('tickets.ticket_detail', ticket_id=t.id) }}" class="ticket-row">
@@ -54,4 +56,6 @@
     <div class="empty">Заявок не найдено</div>
   {% endif %}
 </div>
+
+<script>lucide.createIcons();</script>
 {% endblock %}

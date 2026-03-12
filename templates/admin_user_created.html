@@ -13,18 +13,24 @@
       <div class="kv-k">Пароль</div>
       <div class="kv-v" id="cred-password">{{ password }}</div>
       <div class="kv-k">Email</div>
-      <div class="kv-v">{{ email or "" }}</div>
+      <div class="kv-v">{{ email or "—" }}</div>
     </div>
 
-    <div style="display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;">
-      <button onclick="copyCredentials()" class="btn btn-secondary">Скопировать данные</button>
+    <div style="display:flex;gap:10px;margin-top:22px;flex-wrap:wrap;">
+      <button onclick="copyCredentials()" class="btn btn-secondary">
+        <i data-lucide="copy" style="width:14px;height:14px;"></i> Скопировать данные
+      </button>
       {% if email %}
       <form method="post" action="{{ url_for('admin.admin_send_email', user_id=user.id) }}">
         <input type="hidden" name="plain_password" value="{{ password }}">
-        <button type="submit" class="btn btn-primary">Отправить на почту</button>
+        <button type="submit" class="btn btn-primary">
+          <i data-lucide="mail" style="width:14px;height:14px;"></i> Отправить на почту
+        </button>
       </form>
       {% endif %}
-      <a href="{{ url_for('admin.admin_users') }}" class="btn btn-secondary">К списку пользователей</a>
+      <a href="{{ url_for('admin.admin_users') }}" class="btn btn-secondary">
+        <i data-lucide="users" style="width:14px;height:14px;"></i> К списку
+      </a>
     </div>
   </div>
 </div>
@@ -37,4 +43,5 @@ function copyCredentials() {
   navigator.clipboard.writeText(text).then(function() { alert("Скопировано!"); });
 }
 </script>
+<script>lucide.createIcons();</script>
 {% endblock %}
